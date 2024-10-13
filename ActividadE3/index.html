@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actividad E3</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/3.0.0/jsencrypt.min.js"></script>
+</head>
+<style>
+    *{
+        margin:auto;
+    }
+    body{
+        background-color: rgb(35, 45, 65);
+        color: white;
+        font-family: Arial, sans-serif;
+    }
+    div{
+        text-align: center;
+        background-color:  rgb(55, 85, 125);
+        margin: 24px;
+        max-width: 1024px;
+        padding: 2%;
+    }
+    textarea{
+        resize:both;
+        width: 500px;
+        height: 100px;
+    }
+    button { margin-top: 10px; padding: 5px;}
+</style>
+<body>
+    <div>
+        <h1>Criptografía Moderna</h1>
+        <h2>Criptosistema AES y Algoritmo y RSA</h2>
+    </div>
+    <div>
+        <p>
+            AES es un sistema de cifrado por bloques, diseñado para manejar longitudes de clave y de bloque variables, ambas comprendidas entre los 128 y los 256 bits.
+        </p>
+        <br>
+        <p>
+            El Algoritmo de Rivers, Shamir y Adleman se basa en la dificultad para factorizar números grandes. Este algoritmo crea dos tipos de claves, una clave pública (KP) y una clave privada (kp), ambas se calculan a partir de un número que se obtiene al multiplicar dos números primos grandes.
+        </p>
+    </div>
+    <div>
+        <h2>¡Cifra tu texto aquí!</h2>
+        <textarea id="messageInput" placeholder="inserte un texto aquí para cifrarlo"></textarea> <br>
+        <button onclick="encryptMessage()">CIFRAR TEXTO</button>
+        <p id="aesOutput"></p>
+        <br>
+    </div>
+
+    <div>
+        <h2>¡Cifra tu clave AES! (mediante RSA) </h2>
+        <button onclick="encryptAESKey()">CIFRAR CLAVE</button>
+        <pre id="rsaOutput"></pre>
+    </div>
+
+    <div>
+        <h2>¡Descifra tu clave!</h2>
+        <button onclick="decryptAESKey()">DESCIFRAR CLAVE</button>
+        <p id="aesKeyOutput"></p>
+    </div>
+
+    <div>
+        <h2>¡Descifra el mensaje!</h2>
+        <button onclick="decryptMessage()">Descifrar Mensaje</button>
+        <p id="aesDecryptedOutput"></p>
+    </div>
+
+    <script>
+        // Se declaran las constantes en las que se almacernarán los JSEncrypt
+        const encryptor = new JSEncrypt();
+        const decryptor = new JSEncrypt();
+
+        // Estas constantes guardan los elementos para generar un par de claves RSA
+        const keySize = 2048; // KeySize declara el tamaño en bits del código encriptado
+        const publicKey = encryptor.getPublicKey(); // Esta constante se encarga de obtener una clave pública mediante una función guardada en en la librería
+        const privateKey = encryptor.getPrivateKey(); //Esta también pero con una clave privada.
+        
+        // Estas funciones se encargan de establecer ambas claves
+        encryptor.setPublicKey(publicKey);
+        decryptor.setPrivateKey(privateKey);
+        
+        let aesSecretKey; //aesSecretKey se encarga de almacenar la calve secreta/privada
+
+        // Esta función 
+        function generateAESKey() {
+            aesSecretKey = CryptoJS.lib.WordArray.random(16).toString(); // 16 bytes para AES-128
+            }
+            
+        function encryptMessage() {
+            generateAESKey(); // Generar clave AES al cifrar el mensaje
+            const input = document.getElementById('messageInput').value; // Se busca el elemento co el Id de "Message Input"
+            const encrypted = CryptoJS.AES.encrypt(input, aesSecretKey).toString(); // Encripta el texto introducido y lo convierte a string para ponerlo como texto.
+            document.getElementById('aesOutput').innerText = `Texto cifrado (AES): ${encrypted}`; //Aquí se pondría dicho texto.
+        }
+
+        function encryptAESKey() {
+            if (!aesSecretKey) {
+                alert("Primero debes cifrar un mensaje para generar la clave AES.");
+                return;
+            }
+            const encryptedKey = encryptor.encrypt(aesSecretKey); //Esta constante contiene una función que encripta la clave AES.
+            document.getElementById('rsaOutput').innerText = `Clave AES cifrada (RSA): ${encryptedKey}`; //... Y la muestra en forma de texto.
+        }
+
+        //Esta función se encarga de descifrar la clave AES antes encriptada con RSA
+        function decryptAESKey() {
+            const encryptedKey = document.getElementById('rsaOutput').innerText.replace('Clave AES cifrada (RSA): ', ''); //Busca rsaOutput e inserta el texto entre el segundo paréntesis. 
+            const decryptedKey = decryptor.decrypt(encryptedKey); //Esta constante descifra la clave encriptada. 
+            document.getElementById('aesKeyOutput').innerText = `Clave AES descifrada: ${decryptedKey}`; //Muestra la clave encriptada
+        }
+
+        // Este mensaje descifra la clave AES en texto legible.
+        function decryptMessage() {
+            const encryptedText = document.getElementById('aesOutput').innerText.replace('Texto cifrado (AES): ', '');
+            const decrypted = CryptoJS.AES.decrypt(encryptedText, aesSecretKey);
+            const originalText = decrypted.toString(CryptoJS.enc.Utf8);
+            document.getElementById('aesDecryptedOutput').innerText = `Texto descifrado (AES): ${originalText}`;
+        }
+    </script>
+</body>
+</html>
